@@ -7,6 +7,7 @@
 </head>
 <body>
     <h2>Upload Debug File v2</h2>
+    <input type="text" id="schoolName"> School Name </input>
     <input type="file" id="fileInput" accept=".txt">
     <button onclick="processFile()">Process File</button>
     <div id="downloadLinks"></div>
@@ -59,7 +60,7 @@
                 const link = document.createElement("a");
                 link.href = url;
                 link.download = `${methodName}.txt`;
-                link.textContent = `Download ${methodName}.txt`;
+                link.textContent = `Download ${schoolName} ${methodName}.txt`;
                 link.style.display = "block";
                 
                 container.appendChild(link);
