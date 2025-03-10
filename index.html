@@ -39,7 +39,7 @@
                 const match = block.match(/\"method\":\"(.*?)\"/);
                 if (match) {
                     const methodName = match[1];
-                    const cleanedBlock = block.replace(/\"response\":\{.*?\}/gs, "");
+                    const cleanedBlock = block.replace(/\"Response:\":\{.*?\}/gs, "");
                     methods[methodName] = cleanedBlock;
                 }
             });
