@@ -3,10 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Page</title>
+    <title>Debug File Processor</title>
 </head>
 <body>
-    <h1>Welcome to My GitHub Page</h1>
-    <p>This page is hosted with GitHub Pages.</p>
+    <h2>Upload Debug File</h2>
+    <input type="file" id="fileInput" accept=".txt">
+    <button onclick="processFile()">Process File</button>
+    <div id="downloadLinks"></div>
+
+    <script>
+        function processFile() {
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Please upload a debug.txt file.");
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const text = event.target.result;
+                const methods = extractMethods(text);
+                generateDownloadLinks(methods);
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function extractMethods(text) {
+            const methodBlocks = text.split(/(?=\"method\":)/);
+            const methods = {};
+
+            methodBlocks.forEach(block => {
+                const match = block.match(/\"method\":\"(.*?)\"/);
+                if (match) {
+                    const methodName = match[1];
+                    const cleanedBlock = block.replace(/\"response\":\{.*?\}/gs, "");
+                    methods[methodName] = cleanedBlock;
+                }
+            });
+
+            return methods;
+        }
+
+        function generateDownloadLinks(methods) {
+            const container = document.getElementById("downloadLinks");
+            container.innerHTML = "";
+            
+            Object.entries(methods).forEach(([methodName, content]) => {
+                const blob = new Blob([content], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `${methodName}.txt`;
+                link.textContent = `Download ${methodName}.txt`;
+                link.style.display = "block";
+                
+                container.appendChild(link);
+            });
+        }
+    </script>
 </body>
 </html>
