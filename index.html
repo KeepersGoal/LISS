@@ -42,10 +42,10 @@
 
             // Define tiered pricing
             const pricingTiers = [
-                { limit: 200, price: 15 },  // First 200 units @ $15
-                { limit: 500, price: 10 },  // Next 300 units @ $10 (201-500)
-                { limit: 1000, price: 7 },  // Next 500 units @ $7 (501-1000)
-                { limit: Infinity, price: 5 } // Any units above 1000 @ $5
+                { limit: 500, price: 15 },  // First 500 units @ $15
+                { limit: 1000, price: 10 },  // Next 1000 units @ $10 (201-500)
+                { limit: 1500, price: 5 },  // Next 1500 units @ $7 (501-1000)
+                { limit: Infinity, price: 1 } // Any units above 1000 @ $5
             ];
 
             let totalPrice = 0;
