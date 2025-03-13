@@ -95,10 +95,10 @@
                 { limit: 500, price: 15 }, // First 500 units @ $15
                 { limit: 1000, price: 10 }, // Next 500 units @ $10 (501-1000)
                 { limit: 1500, price: 5 }, // Next 500 units @ $5 (1001-1500)
-                { limit: infinity, price: 1 } // Anything above 1500 @ $1
+                { limit: Infinity, price: 1 } // Anything above 1500 @ $1
             ];
 
-            let totalPrice = 3000;
+            let totalPrice = 0;
             let remainingUnits = unitCount;
             let previousLimit = 0;
 
