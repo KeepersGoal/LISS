@@ -6,44 +6,94 @@
     <title>Debug File Processor v2</title>
 </head>
 <body>
-    <img src="https://static.wixstatic.com/media/10977d_7543a12573804c75aecd0d7b1f944652~mv2.png/v1/fill/w_320,h_80,al_c,q_85,enc_avif,quality_auto/undefined.png">
-    <h2>Upload Debug File</h2>
-    <p>School Name <input type="text" id="schoolName"></p>
-    <p>Enrolments <input type="number" id="unitCount"></p>
+    <h2>Upload Debug File v3</h2>
+
+    <!-- School Name Input -->
+    <label>School Name: <input type="text" id="schoolName"></label><br>
+
+    <!-- Number of Units Input -->
+    <label>Number of Units: <input type="number" id="unitCount" min="1"></label><br>
+
+    <!-- Calculate Price Button -->
     <button onclick="calculatePrice()">Calculate Price</button>
-    <p id="priceDisplay"><strong>Total Price:</strong> <span id="priceValue">$0</span></p>
-    
+
+    <!-- Price Display -->
+    <p><strong>Total Price:</strong> <span id="priceDisplay">$0</span></p>
+
+    <!-- File Upload Section -->
     <input type="file" id="fileInput" accept=".txt">
     <button onclick="processFile()">Process File</button>
     <div id="downloadLinks"></div>
 
     <script>
+        /**
+         * Function to calculate the total price based on tiered pricing.
+         */
+        function calculatePrice() {
+            const unitInput = document.getElementById("unitCount");
+            const priceDisplay = document.getElementById("priceDisplay");
+
+            // Ensure a valid number is entered
+            const unitCount = parseInt(unitInput.value, 10);
+            if (isNaN(unitCount) || unitCount < 1) {
+                alert("Please enter a valid number of units.");
+                return;
+            }
+
+            // Define tiered pricing
+            const pricingTiers = [
+                { limit: 200, price: 15 },  // First 200 units @ $15
+                { limit: 500, price: 10 },  // Next 300 units @ $10 (201-500)
+                { limit: 1000, price: 7 },  // Next 500 units @ $7 (501-1000)
+                { limit: Infinity, price: 5 } // Any units above 1000 @ $5
+            ];
+
+            let totalPrice = 0;
+            let remainingUnits = unitCount;
+            let previousLimit = 0;
+
+            // Loop through pricing tiers
+            for (const tier of pricingTiers) {
+                if (remainingUnits <= 0) break;
+
+                // Calculate how many units fall into this tier
+                const tierUnits = Math.min(remainingUnits, tier.limit - previousLimit);
+                totalPrice += tierUnits * tier.price;
+                remainingUnits -= tierUnits;
+                previousLimit = tier.limit;
+            }
+
+            // Display total price
+            priceDisplay.textContent = `$${totalPrice.toLocaleString()}`;
+        }
+
+        /**
+         * Function to process uploaded file and extract method blocks.
+         */
         function processFile() {
             const fileInput = document.getElementById("fileInput");
-            const schoolName = document.getElementById("schoolName").value;  // Get the school name here
-            
+            const schoolName = document.getElementById("schoolName").value.trim(); // FIXED: Get school name input
+
             if (!fileInput.files.length) {
                 alert("Please upload a debug.txt file.");
                 return;
             }
 
-            if (!schoolName.trim()) {
-                alert("Please enter a school name.");
-                return;
-            }
-            
             const file = fileInput.files[0];
             const reader = new FileReader();
-            
+
             reader.onload = function(event) {
                 const text = event.target.result;
                 const methods = extractMethods(text);
-                generateDownloadLinks(methods, schoolName);  // Pass school name to the function
+                generateDownloadLinks(methods, schoolName); // FIXED: Pass school name to download function
             };
-            
+
             reader.readAsText(file);
         }
 
+        /**
+         * Function to extract methods from the debug file.
+         */
         function extractMethods(text) {
             const methodBlocks = text.split(/(?="method":)/);
             const methods = {};
@@ -61,58 +111,25 @@
             return methods;
         }
 
+        /**
+         * Function to generate download links for extracted methods.
+         */
         function generateDownloadLinks(methods, schoolName) {
             const container = document.getElementById("downloadLinks");
             container.innerHTML = "";
-            
+
             Object.entries(methods).forEach(([methodName, content]) => {
                 const blob = new Blob([content], { type: "text/plain" });
                 const url = URL.createObjectURL(blob);
-                
+
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = `${schoolName} ${methodName}.txt`;  // Use schoolName here
-                link.textContent = `${schoolName} ${methodName}.txt`;
+                link.download = `${schoolName}_${methodName}.txt`; // FIXED: Append school name
+                link.textContent = `Download ${schoolName} ${methodName}.txt`;
                 link.style.display = "block";
-                
+
                 container.appendChild(link);
             });
-        }
-
-        function calculatePrice() {
-            const unitInput = document.getElementById("unitCount");
-            const priceDisplay = document.getElementById("priceValue");
-
-            const unitCount = parseInt(unitInput.value, 10);
-            
-            if (isNaN(unitCount) || unitCount < 1) {
-                alert("Please enter a valid number of units.");
-                return;
-            }
-
-            // Define tiered pricing as an array of objects
-            const pricingTiers = [
-                { limit: 500, price: 15 }, // First 500 units @ $15
-                { limit: 1000, price: 10 }, // Next 500 units @ $10 (501-1000)
-                { limit: 1500, price: 5 }, // Next 500 units @ $5 (1001-1500)
-                { limit: Infinity, price: 1 } // Anything above 1500 @ $1
-            ];
-
-            let totalPrice = 0;
-            let remainingUnits = unitCount;
-            let previousLimit = 0;
-
-            for (const tier of pricingTiers) {
-                if (remainingUnits <= 0) break;
-
-                const tierUnits = Math.min(remainingUnits, tier.limit - previousLimit);
-                totalPrice += tierUnits * tier.price;
-                remainingUnits -= tierUnits;
-                previousLimit = tier.limit;
-            }
-
-            // Display the calculated price
-            priceDisplay.textContent = `$${totalPrice.toLocaleString()}`;
         }
     </script>
 </body>
