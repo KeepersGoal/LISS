@@ -11,7 +11,7 @@
     <p>School Name <input type="text" id="schoolName"></p>
     <p>Enrolments <input type="number" id="unitCount"></p>
     <button onclick="calculatePrice()">Calculate Price</button>
-    <p id="priceDisplay"></p>
+    <p id="priceDisplay"><strong>Total Price:</strong> <span id="priceValue">$0</span></p>
     
     <input type="file" id="fileInput" accept=".txt">
     <button onclick="processFile()">Process File</button>
@@ -80,7 +80,11 @@
         }
 
         function calculatePrice() {
-            const unitCount = parseInt(document.getElementById("unitCount").value, 10);
+            const unitInput = document.getElementById("unitCount");
+            const priceDisplay = document.getElementById("priceValue");
+
+            const unitCount = parseInt(unitInput.value, 10);
+            
             if (isNaN(unitCount) || unitCount < 1) {
                 alert("Please enter a valid number of units.");
                 return;
@@ -107,7 +111,8 @@
                 previousLimit = tier.limit;
             }
 
-            document.getElementById("priceDisplay").textContent = `Total Price: $${totalPrice}`;
+            // Display the calculated price
+            priceDisplay.textContent = `$${totalPrice.toLocaleString()}`;
         }
     </script>
 </body>
