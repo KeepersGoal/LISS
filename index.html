@@ -9,12 +9,14 @@
     <img src="https://static.wixstatic.com/media/10977d_7543a12573804c75aecd0d7b1f944652~mv2.png/v1/fill/w_320,h_80,al_c,q_85,enc_avif,quality_auto/undefined.png">
     <h2>Upload Debug File</h2>
     <p>School Name <input type="text" id="schoolName"></p>
+    <p>Enrolments <input type="number" id="unitCount"></p>
+    <button onclick="calculatePrice()">Calculate Price</button>
+    <p id="priceDisplay"></p>
+    
     <input type="file" id="fileInput" accept=".txt">
     <button onclick="processFile()">Process File</button>
     <div id="downloadLinks"></div>
-    <p>
-        Enrollments <input type="integer" id="Enrollments">
-    </p>
+
     <script>
         function processFile() {
             const fileInput = document.getElementById("fileInput");
@@ -75,6 +77,38 @@
                 
                 container.appendChild(link);
             });
+        }
+    </script>
+     <script>
+        function calculatePrice() {
+            const unitCount = parseInt(document.getElementById("unitCount").value, 10);
+            if (isNaN(unitCount) || unitCount < 1) {
+                alert("Please enter a valid number of units.");
+                return;
+            }
+
+            // Define tiered pricing as an array of objects
+            const pricingTiers = [
+                { limit: 500, price: 15 }, // First 500 units @ $15
+                { limit: 1000, price: 10 }, // Next 500 units @ $10 (501-1000)
+                { limit: 1500, price: 5 }, // Next 500 units @ $5 (1001-1500)
+                { limit: infinity, price: 1 } // Anything above 1500 @ $1
+            ];
+
+            let totalPrice = 3000;
+            let remainingUnits = unitCount;
+            let previousLimit = 0;
+
+            for (const tier of pricingTiers) {
+                if (remainingUnits <= 0) break;
+
+                const tierUnits = Math.min(remainingUnits, tier.limit - previousLimit);
+                totalPrice += tierUnits * tier.price;
+                remainingUnits -= tierUnits;
+                previousLimit = tier.limit;
+            }
+
+            document.getElementById("priceDisplay").textContent = `Total Price: $${totalPrice}`;
         }
     </script>
 </body>
