@@ -43,9 +43,9 @@
             // Define tiered pricing
             const pricingTiers = [
                 { limit: 500, price: 15 },  // First 500 units @ $15
-                { limit: 1000, price: 10 },  // Next 1000 units @ $10 (201-500)
-                { limit: 1500, price: 5 },  // Next 1500 units @ $7 (501-1000)
-                { limit: Infinity, price: 1 } // Any units above 1000 @ $5
+                { limit: 1000, price: 10 },  // Next 1000 units @ $10
+                { limit: 1500, price: 5 },  // Next 1500 units @ $5
+                { limit: Infinity, price: 1 } // Any units above 1000 @ $1
             ];
 
             let totalPrice = 0;
@@ -71,66 +71,65 @@
          * Function to process uploaded file and extract method blocks.
          */
         function processFile() {
-            const fileInput = document.getElementById("fileInput");
-            const schoolName = document.getElementById("schoolName").value.trim(); // FIXED: Get school name input
-
-            if (!fileInput.files.length) {
-                alert("Please upload a debug.txt file.");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(event) {
-                const text = event.target.result;
-                const methods = extractMethods(text);
-                generateDownloadLinks(methods, schoolName); // FIXED: Pass school name to download function
-            };
-
-            reader.readAsText(file);
-        }
-
-        /**
-         * Function to extract methods from the debug file.
-         */
-        function extractMethods(text) {
-            const methodBlocks = text.split(/(?="method":)/);
-            const methods = {};
-
-            methodBlocks.forEach(block => {
-                const match = block.match(/"method":"(.*?)"/);
-                if (match) {
-                    const methodName = match[1];
-                    // Remove everything from 'Response:' onward
-                    const cleanedBlock = block.split(/Response:\s*/)[0].trim();
-                    methods[methodName] = cleanedBlock;
-                }
-            });
-
-            return methods;
-        }
-
-        /**
-         * Function to generate download links for extracted methods.
-         */
-        function generateDownloadLinks(methods, schoolName) {
-            const container = document.getElementById("downloadLinks");
-            container.innerHTML = "";
-
-            Object.entries(methods).forEach(([methodName, content]) => {
-                const blob = new Blob([content], { type: "text/plain" });
-                const url = URL.createObjectURL(blob);
-
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = `${schoolName}_${methodName}.txt`; // FIXED: Append school name
-                link.textContent = `Download ${schoolName} ${methodName}.txt`;
-                link.style.display = "block";
-
-                container.appendChild(link);
-            });
-        }
+             const fileInput = document.getElementById("fileInput");
+             const schoolName = document.getElementById("schoolName").value;  // Get the school name here
+ 
+             if (!fileInput.files.length) {
+                 alert("Please upload a debug.txt file.");
+                 return;
+             }
+ 
+             if (!schoolName.trim()) {
+                 alert("Please enter a school name.");
+                 return;
+             }
+ 
+             const file = fileInput.files[0];
+             const reader = new FileReader();
+ 
+             reader.onload = function(event) {
+                 const text = event.target.result;
+                 const methods = extractMethods(text);
+                 generateDownloadLinks(methods, schoolName);  // Pass school name to the function
+             };
+ 
+             reader.readAsText(file);
+         }
+ 
+         function extractMethods(text) {
+             const methodBlocks = text.split(/(?="method":)/);
+             const methods = {};
+ 
+             methodBlocks.forEach(block => {
+                 const match = block.match(/"method":"(.*?)"/);
+                 if (match) {
+                     const methodName = match[1];
+                     // Remove everything from 'Response:' onward
+                     const cleanedBlock = block.split(/Response:\s*/)[0].trim();
+                     methods[methodName] = cleanedBlock;
+                 }
+             });
+ 
+             return methods;
+         }
+ 
+         function generateDownloadLinks(methods, schoolName) {
+             const container = document.getElementById("downloadLinks");
+             container.innerHTML = "";
+ 
+             Object.entries(methods).forEach(([methodName, content]) => {
+                 const blob = new Blob([content], { type: "text/plain" });
+                 const url = URL.createObjectURL(blob);
+ 
+                 const link = document.createElement("a");
+                 link.href = url;
+                 link.download = `${schoolName} ${methodName}.txt`;  // Use schoolName here
+                 link.textContent = `${schoolName} ${methodName}.txt`;
+                 link.style.display = "block";
+ 
+                 container.appendChild(link);
+             });
+         }
     </script>
 </body>
 </html>
