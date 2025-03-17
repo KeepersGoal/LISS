@@ -7,17 +7,24 @@
 </head>
 <body>
     <img src="https://static.wixstatic.com/media/10977d_7543a12573804c75aecd0d7b1f944652~mv2.png/v1/fill/w_320,h_80,al_c,q_85,enc_avif,quality_auto/undefined.png">
-    <h2>Upload Debug File v8</h2>
+    <h2>Upload Debug File v9</h2>
     <p>School Name <input type="text" id="schoolName"></p>
     <input type="file" id="fileInput" accept=".txt">
     <button onclick="processFile()">Process File</button>
     <div id="downloadLinks"></div>
+</br></br>
+    <h2>Pricing</h2>
+    <p>Enrolments <input type="number" id="units"></p>
+    <button onclick="calculatePrice()">Calculate Price</button>
+    <p id="priceDisplay">Total Price: $0</p> <!-- To display calculated price -->
 
     <script>
         function processFile() {
             const fileInput = document.getElementById("fileInput");
-            const schoolName = document.getElementById("schoolName").value;  // Get the school name here
+            const schoolName = document.getElementById("schoolName").value.trim();  // Get the school name here
             
+            console.log("Processing file..."); // Debugging Log
+
             if (!fileInput.files.length) {
                 alert("Please upload a debug.txt file.");
                 return;
@@ -29,10 +36,14 @@
             }
             
             const file = fileInput.files[0];
+            console.log("File selected:", file.name); // Debugging Log
+
             const reader = new FileReader();
             
             reader.onload = function(event) {
                 const text = event.target.result;
+                console.log("File content loaded"); // Debugging log
+
                 const methods = extractMethods(text);
                 generateDownloadLinks(methods, schoolName);  // Pass school name to the function
             };
@@ -41,18 +52,24 @@
         }
 
         function extractMethods(text) {
+
+            console.log("Extracting methods..."); // Debugging log
+
             const methodBlocks = text.split(/(?="method":)/);
             const methods = {};
 
             methodBlocks.forEach(block => {
+                console.log("Checking block:", block); // Debugging log
                 const match = block.match(/"method":"(.*?)"/);
                 if (match) {
                     const methodName = match[1];
+                    console.log("Method found:", methodName); // Debugging log
                     // Remove everything from 'Response:' onward
                     const cleanedBlock = block.split(/Response:\s*/)[0].trim();
                     methods[methodName] = cleanedBlock;
                 }
             });
+            console.log("Extracted methods:", methods);  // Log final result
 
             return methods;
         }
@@ -60,8 +77,12 @@
         function generateDownloadLinks(methods, schoolName) {
             const container = document.getElementById("downloadLinks");
             container.innerHTML = "";
+
+            console.log("Generating download links..."); // Debugging log
             
             Object.entries(methods).forEach(([methodName, content]) => {
+                console.log("Creating link for:", methodName); // Debugging log
+
                 const blob = new Blob([content], { type: "text/plain" });
                 const url = URL.createObjectURL(blob);
                 
@@ -74,6 +95,42 @@
                 container.appendChild(link);
             });
         }
+
+        // Calculate Pricing
+        function calculatePrice() {
+            const units = parseInt(document.getElementById("units").value);
+            let totalPrice = 0;
+
+            if (isNaN(units) || units <= 0) {
+                document.getElementById("priceDisplay").textContent = "Please enter a valid number of units.";
+                return;
+            }
+
+            // Tier 1: 0 - 500 students
+            if (units <=200) {
+                totalPrice = 3000;
+            }
+            
+            else if (units <= 500) {
+                totalPrice = units * 15;
+            }
+            // Tier 2: 501 - 1000 students
+            else if (units <= 1000) {
+                totalPrice = 500 * 15 + (units - 500) * 10;
+            }
+            // Tier 3: 1001 - 1500 students
+            else if (units <= 1500) {
+                totalPrice = 500 * 15 + 500 * 10 + (units - 1000) * 5;
+            }
+            // Tier 4: 1500+ students
+            else {
+                totalPrice = 500 * 15 + 500 * 10 + 500 * 5 + (units - 1500) * 1;
+            }
+
+            document.getElementById("priceDisplay").textContent = `Total Price: $${totalPrice}`;
+        }
+
+
     </script>
 </body>
 </html>
